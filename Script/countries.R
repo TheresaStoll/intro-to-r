@@ -215,7 +215,152 @@ read_excel("data/gapminder.xlsx")
 
 library(readxl)
 
-read_excel("Data/gapminder.xlsx")
+gapminder_excel <- read_excel("Data/gapminder.xlsx")
+
+read_excel("data/gapminder.xlsx", range = "A1:E4")
+
+read_excel("data/gapminder.xlsx", sheet = "gapminder")
+
+#writing data out
+
+write_csv(gapminder_excel, "results/gapminder_output.csv")
+
+#write out just the Australian data from gapminder 
+
+gapminder_Australia <- filter(gapminder, country == "Australia")
+write_csv(gapminder_Australia, "results/gapminder_output_Australia.csv")
+
+#another way to do it with piping
+gapminder %>%
+  filter(country == "Australia") %>%
+  write_csv("results/australian_data_2.csv")
 
 
-        
+# Constructing an analysis challenge 
+# countries that are in the top 10 life expectancy lists in 1987 and 2007
+
+gapminder # start with gapminder
+filter # just work with data from 1987 and from 2007
+group_by
+arrange # sort our data by life expectancy (needs to be done by year)
+top_n(10) # get just the top ten (bye year)
+summarising with n # count the number of times a country appears
+filter # just keep the countries that appear twice
+
+gapminder %>%
+  filter(year == 1987, year == 2007) %>%
+  group_by(year) %>%
+  arrange(lifeExp) %>%
+  top_n(10) %>%
+  group_by(country) %>%
+  n() 
+
+#day 5 (25 September) stuff
+
+gapminder %>%
+  filter(year == 1957) %>% # Filter for 1957
+  group_by(continent) %>% # Group by continent 
+  summarise(max_gdp = max(gdpPercap)) # Summarise to find the maximum gdp per cap
+
+gapminder_2012 <- read_csv(file="data/gapminder_2012.csv")
+gapminder_2012
+
+?bind_rows() #to get help function and look at examples especially!
+
+# Adding & Combining datasets: Challenge 1 p.46
+combined_gapminder <- bind_rows(gapminder, gapminder_2012)
+combined_gapminder #creates a bigger dataframe with the same columns but additional rows
+# this works if datasets have same number of columns (in this example, the columns also have the same names)
+
+renamed_2012 <- rename(gapminder_2012, population = pop)
+renamed_2012
+
+mismatched_names <- bind_rows(gapminder, renamed_2012)
+mismatched_names
+
+tail(mismatched_names)
+
+# different ways to combine dataframes: https://csiro-data-school.github.io/r/10-Data-Verbs---join/index.html
+
+# joins lesson (different join functions)
+
+example_vector <- c(1,4,2,7)
+example_vector
+
+string_vector <- c('hello', 'this', 'is', 'a', 'vector')
+string_vector
+
+broken_vector <- c('hello', 2)
+broken_vector
+
+df1 <- tibble(sample = c(1,2,3), measure1 = c(4.2, 5.3, 6.1))
+df1
+
+df2 <- tibble(sample = c(1,3,4), measure2 = c(7.8, 6.4, 9.0))
+df2
+
+inner_join(df1, df2)
+
+df3 <- tibble(ID = c(1,2,4), measure3 = c(4.7, 34, 2.6))
+df3
+
+inner_join(df1, df2)
+full_join(df1, df3, by = c("sample" = "ID"))
+
+
+full_join(df1, df2)
+
+left_join(df2, df1)
+
+cows <- tibble(id = c(1, 2, 3),
+        weight1 = c(203, 227, 193),
+        weight2 = c(365, 344, 329))
+cows
+
+cows_tidy <- gather(cows, rep, weight, -id)              
+cows_tidy              
+
+cows_tidy %>%
+  arrange(id)
+
+spread(cows_tidy, rep, weight)
+
+#gather
+
+# new dataframe with a column for year, column for number, another column for country
+# year, number, country
+
+table4a
+
+table4_tidy <- gather (table4a, year, number, -country)
+table4_tidy
+
+table4_tidy %>%
+  arrange(country)
+
+# this all does the same:
+gather(table4a, year, pop, -country) # same as
+gather(table4a, year, pop, 2:3) # identify which columsn to do this on
+gather(table4a, year, pop, "1999", "2000") # can name the column headers
+
+#spread your gathered table4a
+#spread table2
+
+spread(table4_tidy, year, number)
+
+table2
+spread(table2, type, count)
+
+# separate
+cows_with_breed <- cows %>% mutate(id = c("1_A", "2_A", "3_B"))
+cows_with_breed
+
+separate(cows_with_breed, col = id, into = c("ID", "breed"))
+
+separate(cows_with_breed, col = id, into = c("ID", "breed"), sep = "_")
+
+separate(cows_with_breed, id, c("ID", "breed"), "_")
+
+
+
+
